@@ -6,14 +6,10 @@ from sklearn.metrics import roc_auc_score,roc_curve
 import pandas as pd
 import os
 
-<<<<<<< HEAD
 def score(y,pred): 
 	fpr, tpr, thresholds = roc_curve(y, pred, pos_label=1) 
 	score = 0.4*tpr[np.where(fpr>=0.001)[0][0]]+0.3*tpr[np.where(fpr>=0.005)[0][0]]+0.3*tpr[np.where(fpr>=0.01)[0][0]] 
-	return score 
-=======
-os.environ['CUDA_VISIBLE_DEVICES']='0'
->>>>>>> 7ed22b80562a8bf53700ecbefb58cb2f50475406
+	return score
 
 def Conv_Block(X_input, in_channels, out_channels, block, stage):
 	conv_name = 'dense_' + str(block) + '_' + str(stage)
@@ -94,11 +90,7 @@ def train(X_data, Y_data, X_val, y_val):
 
 	#每30epoch学习率下降0.5倍
 	global_step = tf.Variable(0, trainable=False)
-<<<<<<< HEAD
 	learning_rate = tf.train.exponential_decay(0.001, global_step, 30*(Y.shape[0] // batch_size), decay_rate=0.5, staircase=True)
-=======
-	learning_rate = tf.train.exponential_decay(0.001, global_step, 400, decay_rate=0.5, staircase=True)
->>>>>>> 7ed22b80562a8bf53700ecbefb58cb2f50475406
 
 	#使用focal loss
 	'''pred_fixed = tf.clip_by_value(pred, 1e-11, 1.0)
@@ -111,34 +103,17 @@ def train(X_data, Y_data, X_val, y_val):
 	weight_tf_Y = tf.constant([1,80], dtype=tf.float32, name='weight')*tf_Y
 	loss = -tf.reduce_mean(weight_tf_Y*WeightLoss)
 
-<<<<<<< HEAD
 	trainstep = tf.train.AdamOptimizer(learning_rate).minimize(loss, global_step=global_step)
 
 	y_ground = tf.arg_max(tf_Y, 1)
 
-=======
-
-	trainstep = tf.train.AdamOptimizer(learning_rate).minimize(loss, global_step=global_step)
-
-	#y_pred = tf.arg_max(pred, 1)
-	y_ground = tf.arg_max(tf_Y, 1)
-
-	#bool_pred = tf.equal(tf.arg_max(tf_Y, 1), y_pred)
-	#accuracy = tf.reduce_mean(tf.cast(bool_pred,tf.float32)) # 准确率
-
->>>>>>> 7ed22b80562a8bf53700ecbefb58cb2f50475406
 	#merged_summary_op = tf.summary.merge_all()
 
 	with tf.Session() as sess:
 		sess.run(tf.global_variables_initializer())
 
 		#summary_writer = tf.summary.FileWriter('log/densenet_logs', sess.graph)
-
-<<<<<<< HEAD
 		for epoch in range(100):
-=======
-		for epoch in range(3):
->>>>>>> 7ed22b80562a8bf53700ecbefb58cb2f50475406
 			for batch_xs, batch_ys, batch_i in generatebatch(X_data, Y, Y.shape[0], batch_size):
 				pl = sess.run(trainstep, feed_dict={input_data:batch_xs, tf_Y:batch_ys})
 				#summary_str = sess.run(merged_summary_op, feed_dict={input_data:batch_xs, tf_Y:batch_ys})
@@ -146,22 +121,13 @@ def train(X_data, Y_data, X_val, y_val):
 				if batch_i % 100 == 0:
 					y_p, y_t = sess.run([pred_fixed, y_ground], feed_dict={input_data:X_val,tf_Y:Y_val})
 					#fpr, tpr, thresholds = roc_curve(y_t, y_p[:,1], pos_label=1)
-<<<<<<< HEAD
-					#roc_auc = roc_auc_score(y_t, y_p[:,1])
 					roc_auc = score(y_t, y_p[:,1])
-=======
-					roc_auc = roc_auc_score(y_t, y_p[:,1])
->>>>>>> 7ed22b80562a8bf53700ecbefb58cb2f50475406
 					lss = sess.run(loss, feed_dict={input_data:X_val,tf_Y:Y_val})
 					lr = sess.run(learning_rate)
 					print 'iter:',epoch,batch_i,'auc:',roc_auc,'loss:',lss,'lr:',lr
 		tf.train.Saver().save(sess, 'output/'+str(epoch)+'.ckpt')
 
-<<<<<<< HEAD
 def predict(X_data, ckptfile):
-=======
-def predict(X_data):
->>>>>>> 7ed22b80562a8bf53700ecbefb58cb2f50475406
 	tf.reset_default_graph()
 
 	input_data = tf.placeholder(tf.float32, [None, 297, 1])
@@ -187,10 +153,6 @@ def predict(X_data):
 
 	saver = tf.train.Saver()
 	with tf.Session() as sess:
-<<<<<<< HEAD
 		saver.restore(sess, ckptfile)
-=======
-		saver.restore(sess, 'output/2.ckpt')
->>>>>>> 7ed22b80562a8bf53700ecbefb58cb2f50475406
 		result = sess.run(pred_fixed, feed_dict={input_data:X_data})
 		return result[:, 1]
